@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Communication Systems 1 Simulator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for BER Analysis -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            accent: '#38bdf8',
+                            neonGreen: '#22c55e',
+                            neonPurple: '#a855f7',
+                            neonRed: '#ef4444',
+                            warning: '#f59e0b'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f1f5f9;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+        }
+        canvas {
+            border-radius: 0.5rem;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38bdf8;
+        }
+        .glow-box {
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section with Project Metadata -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+            
+            <!-- Project Title & Course Name with Official Complete Thebes Academy Logo -->
+            <div class="flex items-center gap-4">
+                <div class="p-2 bg-white rounded-xl shadow-md flex flex-col items-center justify-center w-28 h-20 overflow-hidden border border-blue-900 flex-shrink-0">
+                    <!-- Accurate Complete Thebes Academy Logo with Text -->
+                    <svg viewBox="0 0 200 160" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Logo Emblem -->
+                        <circle cx="100" cy="55" r="45" fill="none" stroke="#1d4ed8" stroke-width="10"/>
+                        <circle cx="100" cy="55" r="36" fill="none" stroke="#1d4ed8" stroke-width="2.5"/>
+                        <!-- Temple / Pillars -->
+                        <path d="M 100 23 L 123 38 L 77 38 Z" fill="#1d4ed8"/>
+                        <rect x="77" y="41" width="46" height="4" fill="#1d4ed8"/>
+                        <rect x="81" y="48" width="9" height="30" fill="#1d4ed8"/>
+                        <rect x="95.5" y="48" width="9" height="30" fill="#1d4ed8"/>
+                        <rect x="110" y="48" width="9" height="30" fill="#1d4ed8"/>
+                        <rect x="77" y="80" width="46" height="4" fill="#1d4ed8"/>
+                        
+                        <!-- Logo Text: Thebes Academy -->
+                        <text x="100" y="130" font-family="'Times New Roman', Georgia, serif" font-weight="900" font-size="22" fill="#1d4ed8" text-anchor="middle">Thebes Academy</text>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xs font-bold tracking-wider text-blue-400 uppercase bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                        Thebes Higher Institute of Engineering
+                    </span>
+                    <h1 class="text-xl font-extrabold text-white mt-1 tracking-tight">
+                        Secure Data Encryption & Transmission Simulator
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Metadata Cards: Course, Supervisor, TA, Project Lead, Academic Year -->
+            <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 text-xs">
+                
+                <!-- Course Name Card -->
+                <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-book text-sky-400 text-sm"></i>
+                    <div>
+                        <span class="text-[10px] text-slate-500 block leading-none">Course</span>
+                        <span class="font-bold text-sky-300">Digital Comm. Systems 1</span>
+                    </div>
+                </div>
+
+                <!-- Supervisor Card -->
+                <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie text-indigo-400 text-sm"></i>
+                    <div>
+                        <span class="text-[10px] text-slate-500 block leading-none">Supervised By</span>
+                        <span class="font-bold text-indigo-300">Dr. Mahmoud Moussa</span>
+                    </div>
+                </div>
+
+                <!-- Teaching Assistant (TA) Card -->
+                <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-user-graduate text-purple-400 text-sm"></i>
+                    <div>
+                        <span class="text-[10px] text-slate-500 block leading-none">Teaching Assistant</span>
+                        <span class="font-bold text-purple-300">Eng. Amira El-Hosary</span>
+                    </div>
+                </div>
+
+                <!-- Student / Project Lead Card -->
+                <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-emerald-400 text-sm"></i>
+                    <div>
+                        <span class="text-[10px] text-slate-500 block leading-none">Project Lead</span>
+                        <span class="font-bold text-emerald-300">Mustafa Mahmoud</span>
+                    </div>
+                </div>
+
+                <!-- Academic Year Card -->
+                <div class="bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-amber-400 text-sm"></i>
+                    <div>
+                        <span class="text-[10px] text-slate-500 block leading-none">Academic Year</span>
+                        <span class="font-bold text-amber-300">2026 / 2027</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6 flex-grow">
+
+        <!-- Controls / Configuration Panel -->
+        <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 glow-box">
+            <h2 class="text-lg font-bold text-sky-400 mb-4 flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-sliders"></i> System Input Settings (Transmitter Inputs & Channel)
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Text Input -->
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-300 flex justify-between">
+                        <span>Input Text:</span>
+                        <span id="charCount" class="text-xs text-slate-500">4 chars</span>
+                    </label>
+                    <input type="text" id="inputText" value="COMM" maxlength="12" 
+                           class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sky-300 font-mono focus:outline-none focus:border-sky-500 transition"
+                           placeholder="Enter short text...">
+                    <p class="text-[11px] text-slate-400">Converts each character to 8-bit ASCII.</p>
+                </div>
+
+                <!-- Encryption Scheme -->
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-300">Encryption Scheme:</label>
+                    <select id="encryptionType" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                        <option value="none">None (Plain Text)</option>
+                        <option value="xor" selected>XOR Key Cipher</option>
+                        <option value="caesar">Caesar Bit Shift</option>
+                    </select>
+                    <div id="keyInputContainer" class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-slate-400">Key (HEX):</span>
+                        <input type="text" id="encryptionKey" value="A5" maxlength="2" 
+                               class="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-0.5 text-xs text-center font-mono text-purple-400 focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <!-- Line Coding Selection -->
+                <div class="space-y-2">
+                    <label class="text-sm font-semibold text-slate-300">Line Coding Scheme:</label>
+                    <select id="lineCodingType" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-sky-500">
+                        <option value="nrz-l">NRZ-L (Non-Return to Zero Level)</option>
+                        <option value="rz">RZ (Return to Zero)</option>
+                        <option value="manchester" selected>Manchester Encoding</option>
+                    </select>
+                    <p class="text-[11px] text-slate-400">Electrical pulse shaping technique.</p>
+                </div>
+
+                <!-- Noise Level (SNR / BER simulation) -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm font-semibold text-slate-300">
+                        <span>Channel Noise Level:</span>
+                        <span id="noiseVal" class="text-rose-400 font-mono">15%</span>
+                    </div>
+                    <input type="range" id="noiseSlider" min="0" max="100" value="15" 
+                           class="w-full accent-rose-500 bg-slate-950 rounded-lg h-2 cursor-pointer">
+                    <div class="flex justify-between text-[11px] text-slate-500">
+                        <span>Clean Signal (0%)</span>
+                        <span>Max Distortion (100%)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Pipeline Visualizer Steps -->
+        <section class="grid grid-cols-1 md:grid-cols-5 gap-3 text-center">
+            <!-- Step 1 -->
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl relative overflow-hidden group">
+                <div class="text-xs text-sky-400 font-bold mb-1">Stage 1</div>
+                <div class="text-sm font-semibold text-slate-200">Binary Data (ASCII)</div>
+                <div id="step1Bitstream" class="text-[11px] font-mono text-slate-400 truncate mt-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+                    01000011...
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl relative overflow-hidden group">
+                <div class="text-xs text-purple-400 font-bold mb-1">Stage 2</div>
+                <div class="text-sm font-semibold text-slate-200">Data Encryption</div>
+                <div id="step2EncryptedBits" class="text-[11px] font-mono text-purple-300 truncate mt-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+                    11100110...
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl relative overflow-hidden group">
+                <div class="text-xs text-emerald-400 font-bold mb-1">Stage 3</div>
+                <div class="text-sm font-semibold text-slate-200">Line Coding</div>
+                <div id="step3LineCodeInfo" class="text-[11px] font-mono text-emerald-400 truncate mt-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+                    Manchester (±V)
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl relative overflow-hidden group">
+                <div class="text-xs text-rose-400 font-bold mb-1">Stage 4</div>
+                <div class="text-sm font-semibold text-slate-200">Channel & Noise</div>
+                <div id="step4NoiseInfo" class="text-[11px] font-mono text-rose-300 truncate mt-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+                    BER: 0.00%
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl relative overflow-hidden group">
+                <div class="text-xs text-amber-400 font-bold mb-1">Stage 5</div>
+                <div class="text-sm font-semibold text-slate-200">Receiver & Decryption</div>
+                <div id="step5DecryptedText" class="text-[11px] font-mono text-amber-300 truncate mt-2 bg-slate-950 p-1.5 rounded-lg border border-slate-800">
+                    "COMM"
+                </div>
+            </div>
+        </section>
+
+        <!-- Oscilloscope Waveform Canvases -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Transmitted Waveform -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-wave-square"></i> Transmitted Line Code Waveform (Tx)
+                    </h3>
+                    <span id="txStatus" class="text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">
+                        Ideal Waveform
+                    </span>
+                </div>
+                <div class="canvas-container bg-slate-950 rounded-xl border border-slate-800">
+                    <canvas id="txCanvas"></canvas>
+                </div>
+                <div class="mt-2 text-xs text-slate-400 flex justify-between">
+                    <span>X-Axis: Time</span>
+                    <span>Y-Axis: Voltage (+V, 0V, -V)</span>
+                </div>
+            </div>
+
+            <!-- Received Waveform with Channel Noise -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line"></i> Received Waveform with Channel Noise (Rx)
+                    </h3>
+                    <span id="rxStatus" class="text-[11px] bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded">
+                        Noisy Signal
+                    </span>
+                </div>
+                <div class="canvas-container bg-slate-950 rounded-xl border border-slate-800">
+                    <canvas id="rxCanvas"></canvas>
+                </div>
+                <div class="mt-2 text-xs text-slate-400 flex justify-between">
+                    <span class="text-slate-400">Dashed Line: Decision Threshold (0V)</span>
+                    <span id="detectedErrorBadge" class="text-rose-400 font-bold">Detected Errors: 0 Bits</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Bitstream & Statistics Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Digital Stream Comparison Table -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+                <h3 class="text-sm font-bold text-sky-400 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> Bit Comparison Stream Analysis
+                </h3>
+                <div class="overflow-x-auto">
+                    <div id="bitStreamVisual" class="font-mono text-xs flex flex-wrap gap-1 p-3 bg-slate-950 rounded-xl border border-slate-800 max-h-48 overflow-y-auto">
+                        <!-- Dynamic Bits will be inserted here -->
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-4 mt-3 text-xs">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                        <span class="text-slate-300">Matching Bit (Correct)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                        <span class="text-slate-300">Corrupted Bit (Error)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BER & Performance Analytics -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-amber-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie"></i> Performance Analytics (BER)
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <span class="text-xs text-slate-400">Total Sent Bits:</span>
+                            <span id="totalBitsCount" class="font-mono font-bold text-sky-400">32 Bits</span>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <span class="text-xs text-slate-400">Corrupted Bits:</span>
+                            <span id="corruptedBitsCount" class="font-mono font-bold text-rose-400">0 Bits</span>
+                        </div>
+                        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                            <span class="text-xs text-slate-400">Bit Error Rate (BER):</span>
+                            <span id="berPercentage" class="font-mono font-bold text-amber-400">0.00 %</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signal Integrity Status Meter -->
+                <div class="mt-4 pt-3 border-t border-slate-800">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-400">Signal Integrity Quality:</span>
+                        <span id="signalQualityText" class="text-emerald-400 font-bold">Excellent (100%)</span>
+                    </div>
+                    <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800 overflow-hidden">
+                        <div id="signalQualityBar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Explanation Guide -->
+        <section class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+            <h3 class="text-md font-bold text-sky-400 mb-3 flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-book-open"></i> Key Concepts (Digital Communication Systems 1)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                    <span class="font-bold text-purple-400 block mb-1">1. Encryption</span>
+                    Secures digital data before transmission by applying mathematical algorithms (e.g., XOR cipher) to hide plain text contents.
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                    <span class="font-bold text-emerald-400 block mb-1">2. Line Coding</span>
+                    Converts binary bits (0s and 1s) into voltage waveforms suitable for the physical channel.
+                    <br>• <b>NRZ-L:</b> Level shift.
+                    <br>• <b>Manchester:</b> Mid-bit transition for synchronization.
+                </div>
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                    <span class="font-bold text-rose-400 block mb-1">3. Channel Noise & BER</span>
+                    Noise corrupts signal amplitude in the channel. When noise exceeds decision thresholds, bit errors occur, affecting the BER metric.
+                </div>
+            </div>
+        </section>
+
+        <!-- Project Team Members Section -->
+        <section class="bg-slate-900/90 border border-slate-800 rounded-xl p-3">
+            <h3 class="text-xs font-bold text-emerald-400 mb-2 flex items-center gap-2 border-b border-slate-800 pb-1.5">
+                <i class="fa-solid fa-users text-xs"></i> Project Team Members (12 Members)
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5 text-[11px]">
+                
+                <!-- Member 1: Team Lead -->
+                <div class="bg-slate-950 border border-emerald-500/40 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">1</span>
+                    <span class="font-bold text-emerald-300 truncate">Mustafa Mahmoud</span>
+                </div>
+
+                <!-- Member 2 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">2</span>
+                    <span class="font-medium text-slate-300 truncate">Nada Atef</span>
+                </div>
+
+                <!-- Member 3 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">3</span>
+                    <span class="font-medium text-slate-300 truncate">Habiba Ali</span>
+                </div>
+
+                <!-- Member 4 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">4</span>
+                    <span class="font-medium text-slate-300 truncate">Abdallah Samir</span>
+                </div>
+
+                <!-- Member 5 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">5</span>
+                    <span class="font-medium text-slate-300 truncate">Abdallah Sayed</span>
+                </div>
+
+                <!-- Member 6 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">6</span>
+                    <span class="font-medium text-slate-300 truncate">Mohamed Mostafa</span>
+                </div>
+
+                <!-- Member 7 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">7</span>
+                    <span class="font-medium text-slate-300 truncate">Abdelrahman Ashraf</span>
+                </div>
+
+                <!-- Member 8 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">8</span>
+                    <span class="font-medium text-slate-300 truncate">Ziad Mohamed</span>
+                </div>
+
+                <!-- Member 9 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">9</span>
+                    <span class="font-medium text-slate-300 truncate">Abdelhameed Sha'ban</span>
+                </div>
+
+                <!-- Member 10 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">10</span>
+                    <span class="font-medium text-slate-300 truncate">Salah Mohamed</span>
+                </div>
+
+                <!-- Member 11 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">11</span>
+                    <span class="font-medium text-slate-300 truncate">Mohamed Saeed</span>
+                </div>
+
+                <!-- Member 12 -->
+                <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full bg-slate-800 text-sky-400 flex items-center justify-center font-bold text-[9px] flex-shrink-0">12</span>
+                    <span class="font-medium text-slate-300 truncate">Shaimaa Hamdy</span>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 p-3 text-center text-xs text-slate-500">
+        Developed for Digital Communication Systems 1 Course © 2026 / 2027 - All Rights Reserved.
+    </footer>
+
+    <!-- Simulation Engine Logic -->
+    <script>
+        // DOM Elements References
+        const inputText = document.getElementById('inputText');
+        const encryptionType = document.getElementById('encryptionType');
+        const encryptionKey = document.getElementById('encryptionKey');
+        const lineCodingType = document.getElementById('lineCodingType');
+        const noiseSlider = document.getElementById('noiseSlider');
+        const noiseVal = document.getElementById('noiseVal');
+        const charCount = document.getElementById('charCount');
+
+        // Output Display Elements
+        const step1Bitstream = document.getElementById('step1Bitstream');
+        const step2EncryptedBits = document.getElementById('step2EncryptedBits');
+        const step3LineCodeInfo = document.getElementById('step3LineCodeInfo');
+        const step4NoiseInfo = document.getElementById('step4NoiseInfo');
+        const step5DecryptedText = document.getElementById('step5DecryptedText');
+
+        const bitStreamVisual = document.getElementById('bitStreamVisual');
+        const totalBitsCount = document.getElementById('totalBitsCount');
+        const corruptedBitsCount = document.getElementById('corruptedBitsCount');
+        const berPercentage = document.getElementById('berPercentage');
+        const detectedErrorBadge = document.getElementById('detectedErrorBadge');
+        const signalQualityText = document.getElementById('signalQualityText');
+        const signalQualityBar = document.getElementById('signalQualityBar');
+
+        // Canvases
+        const txCanvas = document.getElementById('txCanvas');
+        const rxCanvas = document.getElementById('rxCanvas');
+        const txCtx = txCanvas.getContext('2d');
+        const rxCtx = rxCanvas.getContext('2d');
+
+        // Event Listeners for Live Updates
+        inputText.addEventListener('input', runSimulation);
+        encryptionType.addEventListener('change', runSimulation);
+        encryptionKey.addEventListener('input', runSimulation);
+        lineCodingType.addEventListener('change', runSimulation);
+        noiseSlider.addEventListener('input', (e) => {
+            noiseVal.innerText = `${e.target.value}%`;
+            runSimulation();
+        });
+
+        window.addEventListener('resize', resizeCanvases);
+
+        function resizeCanvases() {
+            const container = txCanvas.parentElement;
+            txCanvas.width = container.clientWidth;
+            txCanvas.height = container.clientHeight;
+            rxCanvas.width = container.clientWidth;
+            rxCanvas.height = container.clientHeight;
+            runSimulation();
+        }
+
+        // --- Core Digital Comm Logic Engine ---
+
+        // Helper: Convert String to Array of Binary Bits (8-bit ASCII)
+        function stringToBits(str) {
+            let bits = [];
+            for (let i = 0; i < str.length; i++) {
+                const charCode = str.charCodeAt(i);
+                for (let b = 7; b >= 0; b--) {
+                    bits.push((charCode >> b) & 1);
+                }
+            }
+            return bits;
+        }
+
+        // Helper: Convert Bits Array back to String
+        function bitsToString(bits) {
+            let str = "";
+            for (let i = 0; i < bits.length; i += 8) {
+                let charCode = 0;
+                for (let b = 0; b < 8; b++) {
+                    if (i + b < bits.length) {
+                        charCode = (charCode << 1) | bits[i + b];
+                    }
+                }
+                if (charCode > 0) str += String.fromCharCode(charCode);
+            }
+            return str;
+        }
+
+        // 1. Encryption Function
+        function encryptBits(bits, method, keyHex) {
+            const keyValue = parseInt(keyHex, 16) || 0xA5;
+            let encrypted = [...bits];
+
+            if (method === 'xor') {
+                for (let i = 0; i < encrypted.length; i++) {
+                    const keyBit = (keyValue >> (7 - (i % 8))) & 1;
+                    encrypted[i] = encrypted[i] ^ keyBit;
+                }
+            } else if (method === 'caesar') {
+                const shift = (keyValue % 7) + 1;
+                for (let i = 0; i < encrypted.length; i += 8) {
+                    let byteVal = 0;
+                    for (let b = 0; b < 8; b++) {
+                        if (i + b < encrypted.length) byteVal = (byteVal << 1) | encrypted[i + b];
+                    }
+                    byteVal = (byteVal + shift) & 0xFF;
+                    for (let b = 7; b >= 0; b--) {
+                        if (i + (7 - b) < encrypted.length) {
+                            encrypted[i + (7 - b)] = (byteVal >> b) & 1;
+                        }
+                    }
+                }
+            }
+            return encrypted;
+        }
+
+        // Decryption Function
+        function decryptBits(bits, method, keyHex) {
+            const keyValue = parseInt(keyHex, 16) || 0xA5;
+            let decrypted = [...bits];
+
+            if (method === 'xor') {
+                for (let i = 0; i < decrypted.length; i++) {
+                    const keyBit = (keyValue >> (7 - (i % 8))) & 1;
+                    decrypted[i] = decrypted[i] ^ keyBit;
+                }
+            } else if (method === 'caesar') {
+                const shift = (keyValue % 7) + 1;
+                for (let i = 0; i < decrypted.length; i += 8) {
+                    let byteVal = 0;
+                    for (let b = 0; b < 8; b++) {
+                        if (i + b < decrypted.length) byteVal = (byteVal << 1) | decrypted[i + b];
+                    }
+                    byteVal = (byteVal - shift + 256) & 0xFF;
+                    for (let b = 7; b >= 0; b--) {
+                        if (i + (7 - b) < decrypted.length) {
+                            decrypted[i + (7 - b)] = (byteVal >> b) & 1;
+                        }
+                    }
+                }
+            }
+            return decrypted;
+        }
+
+        // Main Simulation Trigger
+        function runSimulation() {
+            const text = inputText.value || "A";
+            charCount.innerText = `${text.length} chars`;
+
+            // Step 1: Input to Binary
+            const rawBits = stringToBits(text);
+            step1Bitstream.innerText = rawBits.join('');
+
+            // Step 2: Encryption
+            const encMethod = encryptionType.value;
+            const keyVal = encryptionKey.value;
+            const encBits = encryptBits(rawBits, encMethod, keyVal);
+            step2EncryptedBits.innerText = encBits.join('');
+
+            // Step 3: Line Coding & Voltage Generation
+            const lineCodeScheme = lineCodingType.value;
+            step3LineCodeInfo.innerText = `${lineCodeScheme.toUpperCase()}`;
+
+            // Step 4: Channel Noise Addition
+            const noiseFactor = parseFloat(noiseSlider.value) / 100;
+
+            // Generate Tx & Rx Waveform Signals
+            const samplesPerBit = 20;
+            const signalData = generateLineCodeSignals(encBits, lineCodeScheme, samplesPerBit, noiseFactor);
+
+            // Step 5: Demodulation / Detection at Receiver
+            const detectedBits = demodulateSignal(signalData.rxSamples, encBits.length, samplesPerBit, lineCodeScheme);
+            
+            // Step 6: Decryption & Output Reconstruction
+            const rxDecryptedBits = decryptBits(detectedBits, encMethod, keyVal);
+            const finalString = bitsToString(rxDecryptedBits);
+            step5DecryptedText.innerText = `"${finalString}"`;
+
+            // Calculate BER Metrics
+            let corruptedCount = 0;
+            for (let i = 0; i < encBits.length; i++) {
+                if (encBits[i] !== detectedBits[i]) {
+                    corruptedCount++;
+                }
+            }
+            const berVal = ((corruptedCount / encBits.length) * 100).toFixed(2);
+            
+            step4NoiseInfo.innerText = `BER: ${berVal}%`;
+            totalBitsCount.innerText = `${encBits.length} Bits`;
+            corruptedBitsCount.innerText = `${corruptedCount} Bits`;
+            berPercentage.innerText = `${berVal} %`;
+            detectedErrorBadge.innerText = `Detected Errors: ${corruptedCount} Bits`;
+
+            // Update Signal Quality Bar
+            const quality = Math.max(0, 100 - (berVal * 2)).toFixed(0);
+            signalQualityBar.style.width = `${quality}%`;
+            if (quality > 80) {
+                signalQualityBar.className = "bg-emerald-500 h-full transition-all duration-300";
+                signalQualityText.innerText = `Excellent (${quality}%)`;
+                signalQualityText.className = "text-emerald-400 font-bold";
+            } else if (quality > 40) {
+                signalQualityBar.className = "bg-amber-500 h-full transition-all duration-300";
+                signalQualityText.innerText = `Moderate (${quality}%)`;
+                signalQualityText.className = "text-amber-400 font-bold";
+            } else {
+                signalQualityBar.className = "bg-rose-500 h-full transition-all duration-300";
+                signalQualityText.innerText = `Poor (${quality}%)`;
+                signalQualityText.className = "text-rose-400 font-bold";
+            }
+
+            // Render Bitstream Visualization Array
+            renderBitStreamComparison(encBits, detectedBits);
+
+            // Draw Canvases
+            drawWaveform(txCtx, txCanvas, signalData.txSamples, encBits, samplesPerBit, 'emerald');
+            drawWaveform(rxCtx, rxCanvas, signalData.rxSamples, encBits, samplesPerBit, 'rose', true);
+        }
+
+        // Line Coding Signal Generator
+        function generateLineCodeSignals(bits, scheme, samplesPerBit, noiseNoiseFactor) {
+            let txSamples = [];
+            let rxSamples = [];
+            const vHigh = 1.0;
+            const vLow = -1.0;
+            const vZero = 0.0;
+
+            bits.forEach(bit => {
+                for (let s = 0; s < samplesPerBit; s++) {
+                    let vTx = vZero;
+                    const progress = s / samplesPerBit;
+
+                    if (scheme === 'nrz-l') {
+                        vTx = (bit === 1) ? vLow : vHigh;
+                    } else if (scheme === 'rz') {
+                        if (progress < 0.5) {
+                            vTx = (bit === 1) ? vHigh : vLow;
+                        } else {
+                            vTx = vZero;
+                        }
+                    } else if (scheme === 'manchester') {
+                        if (bit === 1) {
+                            vTx = (progress < 0.5) ? vHigh : vLow;
+                        } else {
+                            vTx = (progress < 0.5) ? vLow : vHigh;
+                        }
+                    }
+
+                    const randomNoise = (Math.random() - 0.5) * 2 * noiseNoiseFactor * 8.0;
+                    const vRx = vTx + randomNoise;
+
+                    txSamples.push(vTx);
+                    rxSamples.push(vRx);
+                }
+            });
+
+            return { txSamples, rxSamples };
+        }
+
+        // Demodulator Logic (Threshold Receiver)
+        function demodulateSignal(rxSamples, bitCount, samplesPerBit, scheme) {
+            let detected = [];
+            for (let i = 0; i < bitCount; i++) {
+                let sampleSumFirstHalf = 0;
+                let sampleSumSecondHalf = 0;
+                let fullSampleSum = 0;
+
+                const startIdx = i * samplesPerBit;
+                const halfIdx = startIdx + Math.floor(samplesPerBit / 2);
+                const endIdx = startIdx + samplesPerBit;
+
+                for (let s = startIdx; s < halfIdx; s++) sampleSumFirstHalf += rxSamples[s];
+                for (let s = halfIdx; s < endIdx; s++) sampleSumSecondHalf += rxSamples[s];
+                for (let s = startIdx; s < endIdx; s++) fullSampleSum += rxSamples[s];
+
+                let bitValue = 0;
+
+                if (scheme === 'nrz-l') {
+                    bitValue = (fullSampleSum / samplesPerBit < 0) ? 1 : 0;
+                } else if (scheme === 'rz') {
+                    bitValue = (sampleSumFirstHalf / (samplesPerBit / 2) > 0) ? 1 : 0;
+                } else if (scheme === 'manchester') {
+                    const diff = sampleSumFirstHalf - sampleSumSecondHalf;
+                    bitValue = (diff > 0) ? 1 : 0;
+                }
+
+                detected.push(bitValue);
+            }
+            return detected;
+        }
+
+        // Render Waveform Canvas
+        function drawWaveform(ctx, canvas, samples, bits, samplesPerBit, colorTheme, showThreshold = false) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const padding = 25;
+            const w = canvas.width - (padding * 2);
+            const h = canvas.height - (padding * 2);
+            const midY = canvas.height / 2;
+
+            // Draw Grid Axis
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+
+            ctx.beginPath();
+            ctx.moveTo(padding, midY);
+            ctx.lineTo(canvas.width - padding, midY);
+            ctx.stroke();
+
+            if (showThreshold) {
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(padding, midY);
+                ctx.lineTo(canvas.width - padding, midY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            if (!bits || bits.length === 0) return;
+
+            const bitWidth = w / bits.length;
+            ctx.fillStyle = '#64748b';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+
+            for (let i = 0; i < bits.length; i++) {
+                const x = padding + (i * bitWidth);
+                ctx.strokeStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(canvas.width - padding, canvas.height - padding);
+                ctx.stroke();
+
+                ctx.fillText(bits[i], x + (bitWidth / 2), padding - 8);
+            }
+
+            if (!samples || samples.length === 0) return;
+
+            const stepX = w / (samples.length - 1);
+            const scaleY = h / 3;
+
+            ctx.beginPath();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = (colorTheme === 'emerald') ? '#22c55e' : '#ef4444';
+
+            for (let i = 0; i < samples.length; i++) {
+                const x = padding + (i * stepX);
+                const y = midY - (samples[i] * scaleY);
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+        }
+
+        // Render HTML Bit Stream Comparison Box
+        function renderBitStreamComparison(sentBits, receivedBits) {
+            bitStreamVisual.innerHTML = '';
+            for (let i = 0; i < sentBits.length; i++) {
+                const isMatch = sentBits[i] === receivedBits[i];
+                const bitElem = document.createElement('span');
+                bitElem.className = `px-1.5 py-0.5 rounded font-bold border transition ${
+                    isMatch 
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-rose-500/20 text-rose-400 border-rose-500/50 animate-bounce'
+                }`;
+                bitElem.innerText = receivedBits[i];
+                bitElem.title = `Bit #${i + 1}: Sent (${sentBits[i]}) vs Rx (${receivedBits[i]})`;
+                bitStreamVisual.appendChild(bitElem);
+            }
+        }
+
+        // Initial setup on window load
+        window.onload = () => {
+            setTimeout(() => {
+                resizeCanvases();
+            }, 50);
+        };
+    </script>
+</body>
+</html>
