@@ -1,8 +1,8 @@
-# Digital Communication Systems 1 Simulator
+# Digital Communication Simulator
 
 An interactive single-page web app for experimenting with Digital Communication Systems 1 course concepts. Everything runs in the browser - no installation needed.
 
-**Live demo:** https://mm9036922-gif.github.io/dcs1-simulator/
+**Live demo:** https://mm9036922-gif.github.io/digital-communication-simulator/
 
 ## What it does
 
